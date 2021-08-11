@@ -31,7 +31,6 @@ int main()
 		const auto& pos = vec2{my_rand(), my_rand()};
 		const auto& mass = my_rand() * 1.5;
 
-		//bodies[i] = (std::make_shared<body>(i, pos, mass));
 		bodies.push_back(std::make_shared<body>(i, pos, mass));
 	}
 
@@ -77,14 +76,14 @@ int main()
 
 	// -------- Do Analysis --------
 
-
 	vec2 tmp;
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
 		tmp += pow(forces_n_squared[i] - forces_n_log_n[i], 2);
 	}
 
-	const auto rsme = sqrt(tmp / static_cast<double>(num_bodies));
+	constexpr auto n = static_cast<double>(num_bodies);
+	const auto rsme = sqrt(tmp / n);
 	std::cout << "RSME = " << rsme << std::endl;
 
 	return EXIT_SUCCESS;
