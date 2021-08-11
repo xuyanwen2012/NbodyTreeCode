@@ -1,23 +1,38 @@
-﻿#include <algorithm>
-#include <iostream>
-#include <random>
+﻿#include <iostream>
 #include <complex>
-#include <cstdlib>
+#include <vector>
+#include <random>
 
 #include "AdaptiveQuadtree.h"
 #include "Body.h"
 
+#ifdef __linux__
+#include <algorithm>
+#include <cstdlib>
+#endif
 
-double f_rand(const double f_min = 0.0, const double f_max = 1.0)
+#ifdef _WIN32
+double my_rand()
+{
+	static thread_local std::mt19937 generator;
+	const std::uniform_real_distribution distribution(0.0, 1.0);
+	return distribution(generator);
+}
+#endif
+
+#ifdef __linux__
+double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 {
 	const double f = static_cast<double>(rand()) / RAND_MAX;
 	return f_min + f * (f_max - f_min);
 }
+#endif
+
 
 void estimate_forces(const size_t num_bodies,
-	std::vector<vec2>& forces_n_log_n,
-	adaptive::quadtree& qt,
-	const std::vector<std::shared_ptr<body>>& bodies)
+                     std::vector<vec2>& forces_n_log_n,
+                     adaptive::quadtree& qt,
+                     const std::vector<std::shared_ptr<body>>& bodies)
 {
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
@@ -43,8 +58,8 @@ int main(const int argc, char* argv[])
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		const auto& pos = vec2{ f_rand(), f_rand() };
-		const auto& mass = f_rand() * 1.5;
+		const auto& pos = vec2{my_rand(), my_rand()};
+		const auto& mass = my_rand() * 1.5;
 
 		bodies.push_back(std::make_shared<body>(i, pos, mass));
 	}
@@ -54,7 +69,7 @@ int main(const int argc, char* argv[])
 	{
 		for (size_t i = 0; i < num_bodies; ++i)
 		{
-			forces_n_squared[i] = { 0, 0 };
+			forces_n_squared[i] = {0, 0};
 			for (size_t j = 0; j < num_bodies; ++j)
 			{
 				if (i == j)
@@ -103,6 +118,8 @@ int main(const int argc, char* argv[])
 		const auto rsme = sqrt(tmp / n);
 		std::cout << "RSME = " << rsme << std::endl;
 	}
+
+	std::cout << "done!" << std::endl;
 
 	return EXIT_SUCCESS;
 }

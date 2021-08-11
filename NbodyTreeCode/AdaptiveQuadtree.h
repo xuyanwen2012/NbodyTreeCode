@@ -3,7 +3,11 @@
 #include <array>
 #include <complex>
 #include <optional>
+
+#ifdef __linux__
+#include <algorithm>
 #include <memory>
+#endif
 
 #include "Body.h"
 #include "Rect.h"
