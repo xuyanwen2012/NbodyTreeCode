@@ -67,22 +67,22 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		bool is_leaf() const { return !children.has_value(); }
+		[[nodiscard]] bool is_leaf() const { return !children.has_value(); }
 
 		/// <summary>
 		///
 		/// </summary>
-		bool is_empty() const { return content == nullptr; }
+		[[nodiscard]] bool is_empty() const { return content == nullptr; }
 
 		/// <summary>
 		///
 		/// </summary>
-		direction determine_quadrant(const vec2& pos) const;
+		[[nodiscard]] direction determine_quadrant(const vec2& pos) const;
 
 		/// <summary>
 		///
 		/// </summary>
-		std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
+		[[nodiscard]] std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
 
 		/// <summary>
 		///
