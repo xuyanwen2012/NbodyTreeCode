@@ -1,6 +1,5 @@
 ﻿#include <algorithm>
 #include <array>
-#include <execution>
 #include <iostream>
 #include <random>
 #include <complex>

@@ -63,12 +63,12 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD constexpr bool is_leaf() const { return !children.has_value(); }
+		_NODISCARD bool is_leaf() const { return !children.has_value(); }
 
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD constexpr bool is_empty() const { return content == nullptr; }
+		_NODISCARD bool is_empty() const { return content == nullptr; }
 
 		/// <summary>
 		///
