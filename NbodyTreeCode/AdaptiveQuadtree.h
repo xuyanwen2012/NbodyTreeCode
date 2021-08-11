@@ -1,9 +1,9 @@
 #pragma once
 
 #include <array>
-#include <array>
 #include <complex>
 #include <optional>
+#include <memory>
 
 #include "Body.h"
 #include "Rect.h"
@@ -63,22 +63,22 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD bool is_leaf() const { return !children.has_value(); }
+		bool is_leaf() const { return !children.has_value(); }
 
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD bool is_empty() const { return content == nullptr; }
+		bool is_empty() const { return content == nullptr; }
 
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD direction determine_quadrant(const vec2& pos) const;
+		direction determine_quadrant(const vec2& pos) const;
 
 		/// <summary>
 		///
 		/// </summary>
-		_NODISCARD std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
+		std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
 
 		/// <summary>
 		///

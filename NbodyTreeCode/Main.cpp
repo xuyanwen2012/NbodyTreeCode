@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <complex>
+#include <memory>
 
 #include "AdaptiveQuadtree.h"
 #include "Body.h"
