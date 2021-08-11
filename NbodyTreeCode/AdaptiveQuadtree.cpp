@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <list>
-#include <numeric>
+#include <algorithm>
 #include <queue>
 
 std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
