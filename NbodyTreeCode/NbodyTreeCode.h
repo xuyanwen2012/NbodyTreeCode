@@ -1,8 +1,11 @@
-﻿// NbodyTreeCode.h : Include file for standard system include files,
-// or project specific include files.
+﻿#pragma once
 
-#pragma once
-
+#include <algorithm>
+#include <array>
+#include <execution>
 #include <iostream>
+#include <random>
+#include <complex>
 
-// TODO: Reference additional headers your program requires here.
+#include "AdaptiveQuadtree.h"
+#include "Body.h"
