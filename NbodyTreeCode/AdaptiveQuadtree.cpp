@@ -348,4 +348,5 @@ std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node,
 }
 
 size_t adaptive::quadtree::depth = 0;
-size_t adaptive::quadtree::num_nodes = 0;
+
+size_t adaptive::quadtree::num_nodes = 1;
