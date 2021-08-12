@@ -2,18 +2,23 @@
 
 #include <complex>
 
-using vec2 = std::complex<double>;
-
+template <typename T,
+          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
 struct body
 {
-	body(const int uid, const vec2 pos, const double mass)
+	body(const int uid, const std::complex<T> pos, const double mass)
 		: uid(uid), pos(pos), mass(mass)
 	{
 	}
 
 	int uid;
-	vec2 pos;
+	std::complex<T> pos;
 	double mass;
 };
 
-inline vec2 kernel_func(const vec2& i, const vec2& j) { return log(abs(i - j)); }
+template <typename T,
+          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
+std::complex<T> kernel_func(
+	const std::complex<T>& i,
+	const std::complex<T>& j
+) { return log(abs(i - j)); }

@@ -14,6 +14,9 @@
 
 namespace adaptive
 {
+	using vec2 = std::complex<double>;
+	using body_ptr = std::shared_ptr<body<double>>;
+
 	/// <summary>
 	/// A node in the quadtree.
 	/// </summary>
@@ -44,7 +47,7 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		std::shared_ptr<body> content;
+		body_ptr content;
 
 		/// <summary>
 		///	 2 | 3
@@ -94,7 +97,7 @@ namespace adaptive
 		///
 		/// </summary>
 		///	<param name="body_ptr"> The body to be inserted into the quadtree. </param>
-		void insert_body(const std::shared_ptr<body>& body_ptr);
+		void insert_body(const body_ptr& body_ptr);
 
 		/// <summary>
 		///
@@ -107,7 +110,7 @@ namespace adaptive
 	public:
 		quadtree();
 
-		void allocate_node_for_particle(const std::shared_ptr<body>& body_ptr);
+		void allocate_node_for_particle(const body_ptr& body_ptr);
 		void compute_center_of_mass();
 
 		std::complex<double> compute_force_at_recursive(const vec2& pos);
@@ -124,7 +127,7 @@ namespace adaptive
 		tree_node root_;
 
 		bool check_theta(const tree_node* node, const vec2& pos) const;
-		static std::complex<double> direct_compute(const std::shared_ptr<body>& body, const vec2& pos);
+		static std::complex<double> direct_compute(const body_ptr& body, const vec2& pos);
 		static std::complex<double> estimate_compute(const tree_node* node, const vec2& pos);
 	};
 }

@@ -11,10 +11,12 @@
 #include <cstdlib>
 #endif
 
+using namespace adaptive;
+
 #ifdef _WIN32
 double my_rand()
 {
-	static thread_local std::mt19937 generator;  // NOLINT(cert-msc51-cpp)
+	static thread_local std::mt19937 generator; // NOLINT(cert-msc51-cpp)
 	const std::uniform_real_distribution distribution(0.0, 1.0);
 	return distribution(generator);
 }
@@ -28,9 +30,16 @@ double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 }
 #endif
 
+/// <summary>
+/// We have to extract this method out so that we can use the Princeton tool
+/// on this function
+/// </summary>
+/// <param name="forces_n_log_n"></param>
+/// <param name="qt"></param>
+/// <param name="bodies"></param>
 void estimate_forces(std::vector<vec2>& forces_n_log_n,
-                     adaptive::quadtree& qt,
-                     const std::vector<std::shared_ptr<body>>& bodies)
+                     quadtree& qt,
+                     const std::vector<std::shared_ptr<body<double>>>& bodies)
 {
 	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -60,22 +69,34 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	}
 }
 
-int main(const int argc, char* argv[])
+/// <summary>
+/// The Main Entry to my N-body program
+/// </summary>
+/// <param name="argc"></param>
+/// <param name="argv"></param>
+/// <returns></returns>
+int main(const int argc, char* argv[]) 
 {
 	static constexpr bool show_rmse = false;
 
 	size_t num_bodies = 1024 * 1024;
-	//size_t num_bodies = 1024 * 1024;
 	if (argc == 2)
 	{
 		num_bodies = atoi(argv[1]);
 	}
 
 	// The main particle table
-	std::vector<std::shared_ptr<body>> bodies;
+	std::vector<body_ptr> bodies;
 
+	// The force tables used to store results.
 	std::vector<vec2> forces_n_squared;
+	if (show_rmse)
+	{
+		forces_n_squared.reserve(num_bodies);
+	}
+
 	std::vector<vec2> forces_n_log_n;
+	forces_n_log_n.reserve(num_bodies);
 
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -83,7 +104,7 @@ int main(const int argc, char* argv[])
 		const auto& pos = vec2{my_rand(), my_rand()};
 		const auto& mass = my_rand() * 1.5;
 
-		bodies.push_back(std::make_shared<body>(i, pos, mass));
+		bodies.push_back(std::make_shared<body<double>>(i, pos, mass));
 	}
 
 	// -------- Do the N squared --------
@@ -112,19 +133,19 @@ int main(const int argc, char* argv[])
 	}
 
 	// -------- Do the NlogN --------
-	auto qt = adaptive::quadtree();
+	auto qt = quadtree();
 
 	// 1) Construct the Quadtree
-	for (const auto& body_ptr : bodies)
+	for (const auto& body : bodies)
 	{
-		qt.allocate_node_for_particle(body_ptr);
+		qt.allocate_node_for_particle(body);
 	}
 
 	// 2) Calculate Centers of Mass
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	 estimate_forces(forces_n_log_n, qt, bodies);
+	estimate_forces(forces_n_log_n, qt, bodies);
 
 	// -------- Do Analysis --------
 
@@ -141,8 +162,8 @@ int main(const int argc, char* argv[])
 		std::cout << "RSME = " << rsme << std::endl;
 	}
 
-	std::cout << "tree depth: " << adaptive::quadtree::depth << std::endl;
-	std::cout << "tree num nodes: " << adaptive::quadtree::num_nodes << std::endl;
+	std::cout << "tree depth: " << quadtree::depth << std::endl;
+	std::cout << "tree num nodes: " << quadtree::num_nodes << std::endl;
 
 	return EXIT_SUCCESS;
 }
