@@ -104,8 +104,9 @@ int main(const int argc, char* argv[])
 
 	// 3) Estimate N-Body Forces
 	// estimate_forces(num_bodies, forces_n_log_n, qt, bodies);
-	auto a = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
-	auto b = qt.compute_force_at_recursive(bodies[0]->pos);
+	auto a = qt.compute_force_at_recursive(bodies[0]->pos);
+	auto bfs = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
+	auto dfs = qt.compute_force_at_iterative_dfs(bodies[0]->pos);
 
 	// -------- Do Analysis --------
 

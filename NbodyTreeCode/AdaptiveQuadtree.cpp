@@ -200,6 +200,8 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const ve
 
 	while (!queue.empty())
 	{
+		//std::cout<< queue.size() <<std::endl;
+
 		const auto current = queue.front();
 		queue.pop();
 
@@ -216,7 +218,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const ve
 			// Otherwise, we will recursively visit the child cells in the quadtree.
 			for (const auto child : current->children.value())
 			{
-				if (child->is_leaf() && child->is_empty())
+				if (child->is_leaf() && child->is_empty()) // skip empty nodes
 				{
 					continue;
 				}
@@ -244,6 +246,23 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 		if (current->is_leaf())
 		{
 			force += direct_compute(current->content, pos);
+		}
+		else if (check_theta(current, pos))
+		{
+			force += estimate_compute(current, pos);
+		}
+		else
+		{
+			// Otherwise, we will recursively visit the child cells in the quadtree.
+			for (const auto child : current->children.value())
+			{
+				if (child->is_leaf() && child->is_empty()) // skip empty nodes
+				{
+					continue;
+				}
+
+				stack.push(child);
+			}
 		}
 
 	}
