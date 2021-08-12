@@ -28,27 +28,48 @@ double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 }
 #endif
 
-
-void estimate_forces(const size_t num_bodies,
-                     std::vector<vec2>& forces_n_log_n,
+void estimate_forces(std::vector<vec2>& forces_n_log_n,
                      adaptive::quadtree& qt,
                      const std::vector<std::shared_ptr<body>>& bodies)
 {
+	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		forces_n_log_n.push_back(qt.compute_force_at_iterative_bfs(bodies[i]->pos));
+		std::complex<double> force;
+
+		static constexpr int method = 3;
+
+		if constexpr (method == 0)
+		{
+			force = qt.compute_force_at_recursive(bodies[0]->pos);
+		}
+		if constexpr (method == 1)
+		{
+			force = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
+		}
+		if constexpr (method == 2)
+		{
+			force = qt.compute_force_at_iterative_dfs(bodies[0]->pos);
+		}
+		if constexpr (method == 3)
+		{
+			force = qt.compute_force_at_iterative_dfs_array(bodies[0]->pos);
+		}
+
+		forces_n_log_n.push_back(force);
 	}
 }
 
 int main(const int argc, char* argv[])
 {
+	static constexpr bool show_rmse = false;
+
 	size_t num_bodies = 1024;
 	//size_t num_bodies = 1024 * 1024;
 	if (argc == 2)
 	{
 		num_bodies = atoi(argv[1]);
 	}
-	constexpr bool show_rmse = false;
 
 	// The main particle table
 	std::vector<std::shared_ptr<body>> bodies;
@@ -103,12 +124,7 @@ int main(const int argc, char* argv[])
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	// estimate_forces(num_bodies, forces_n_log_n, qt, bodies);
-	auto a = qt.compute_force_at_recursive(bodies[0]->pos);
-	auto bfs = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
-	std::cout << "-----------------------------------------" << std::endl;
-	auto dfs = qt.compute_force_at_iterative_dfs(bodies[0]->pos);
-	auto dfs_array = qt.compute_force_at_iterative_dfs_array(bodies[0]->pos);
+	 estimate_forces(forces_n_log_n, qt, bodies);
 
 	// -------- Do Analysis --------
 
