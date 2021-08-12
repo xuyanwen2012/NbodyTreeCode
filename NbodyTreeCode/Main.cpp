@@ -17,7 +17,7 @@ using namespace adaptive;
 double my_rand()
 {
 	static thread_local std::mt19937 generator; // NOLINT(cert-msc51-cpp)
-	const std::uniform_real_distribution distribution(0.0, 1.0);
+	const std::uniform_real_distribution<double> distribution(0.0, 1.0);
 	return distribution(generator);
 }
 #endif
