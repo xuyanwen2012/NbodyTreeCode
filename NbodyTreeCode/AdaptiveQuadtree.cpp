@@ -49,7 +49,7 @@ std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 	return acc;
 }
 
-void adaptive::tree_node::insert_body(const std::shared_ptr<body>& body_ptr)
+void adaptive::tree_node::insert_body(const std::shared_ptr<body<double>>& body_ptr)
 {
 	if (is_leaf())
 	{
@@ -122,7 +122,7 @@ adaptive::quadtree::quadtree()
 	root_ = tree_node(1, rect{0.5, 0.5, 1.0, 1.0}, 0);
 }
 
-void adaptive::quadtree::allocate_node_for_particle(const std::shared_ptr<body>& body_ptr)
+void adaptive::quadtree::allocate_node_for_particle(const std::shared_ptr<body<double>>& body_ptr)
 {
 	++num_particles;
 	root_.insert_body(body_ptr);
@@ -315,7 +315,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(co
 	return force;
 }
 
-std::complex<double> adaptive::quadtree::direct_compute(const std::shared_ptr<body>& body, const vec2& pos)
+std::complex<double> adaptive::quadtree::direct_compute(const std::shared_ptr<body<double>>& body, const vec2& pos)
 {
 	std::complex<double> force;
 

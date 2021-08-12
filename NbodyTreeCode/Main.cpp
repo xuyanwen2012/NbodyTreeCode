@@ -28,9 +28,9 @@ double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 }
 #endif
 
-void estimate_forces(std::vector<vec2>& forces_n_log_n,
+void estimate_forces(std::vector<adaptive::vec2>& forces_n_log_n,
                      adaptive::quadtree& qt,
-                     const std::vector<std::shared_ptr<body>>& bodies)
+                     const std::vector<std::shared_ptr<body<double>>>& bodies)
 {
 	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -72,18 +72,18 @@ int main(const int argc, char* argv[])
 	}
 
 	// The main particle table
-	std::vector<std::shared_ptr<body>> bodies;
+	std::vector<std::shared_ptr<body<double>>> bodies;
 
-	std::vector<vec2> forces_n_squared;
-	std::vector<vec2> forces_n_log_n;
+	std::vector<adaptive::vec2> forces_n_squared;
+	std::vector<adaptive::vec2> forces_n_log_n;
 
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		const auto& pos = vec2{my_rand(), my_rand()};
+		const auto& pos = adaptive::vec2{my_rand(), my_rand()};
 		const auto& mass = my_rand() * 1.5;
 
-		bodies.push_back(std::make_shared<body>(i, pos, mass));
+		bodies.push_back(std::make_shared<body<double>>(i, pos, mass));
 	}
 
 	// -------- Do the N squared --------
@@ -130,7 +130,7 @@ int main(const int argc, char* argv[])
 
 	if (show_rmse)
 	{
-		vec2 tmp;
+		adaptive::vec2 tmp;
 		for (size_t i = 0; i < num_bodies; ++i)
 		{
 			tmp += pow(forces_n_squared[i] - forces_n_log_n[i], 2);
