@@ -36,13 +36,14 @@ void estimate_forces(const size_t num_bodies,
 {
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		forces_n_log_n.push_back(qt.compute_force_at(bodies[i]->pos));
+		forces_n_log_n.push_back(qt.compute_force_at_iterative(bodies[i]->pos));
 	}
 }
 
 int main(const int argc, char* argv[])
 {
-	size_t num_bodies = 1024 * 1024;
+	size_t num_bodies = 10;
+	//size_t num_bodies = 1024 * 1024;
 	if (argc == 2)
 	{
 		num_bodies = atoi(argv[1]);
@@ -102,7 +103,9 @@ int main(const int argc, char* argv[])
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	estimate_forces(num_bodies, forces_n_log_n, qt, bodies);
+	// estimate_forces(num_bodies, forces_n_log_n, qt, bodies);
+	auto a = qt.compute_force_at_iterative(bodies[0]->pos);
+	auto b =  qt.compute_force_at(bodies[0]->pos);
 
 	// -------- Do Analysis --------
 

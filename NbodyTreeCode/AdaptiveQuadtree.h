@@ -88,6 +88,7 @@ namespace adaptive
 		///
 		/// </summary>
 		std::complex<double> get_gravity_at(const vec2& pos);
+
 	private:
 		/// <summary>
 		///
@@ -108,6 +109,7 @@ namespace adaptive
 		void allocate_node_for_particle(const std::shared_ptr<body>& body_ptr);
 		void compute_center_of_mass();
 		std::complex<double> compute_force_at(const vec2& pos);
+		std::complex<double> compute_force_at_iterative(const vec2& pos);
 
 	private:
 		tree_node root_;

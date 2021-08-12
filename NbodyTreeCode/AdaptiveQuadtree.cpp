@@ -4,6 +4,7 @@
 #include <list>
 #include <algorithm>
 #include <queue>
+#include <stack>
 
 std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 {
@@ -180,3 +181,99 @@ std::complex<double> adaptive::quadtree::compute_force_at(const vec2& pos)
 {
 	return root_.get_gravity_at(pos);
 }
+
+std::complex<double> adaptive::quadtree::compute_force_at_iterative(const vec2& pos)
+{
+	std::complex<double> force;
+
+	std::queue<tree_node*> queue;
+	queue.push(&root_);
+
+	while (!queue.empty())
+	{
+		const auto current = queue.front();
+		queue.pop();
+
+		if (current->is_leaf())
+		{
+			if (current->content->pos != pos)
+			{
+				const auto f = kernel_func(current->content->pos, pos);
+				force += f * current->content->mass;
+			}
+
+			// basically return
+			continue;
+		}
+
+		const auto com = current->center_of_mass();
+		const auto distance = com - pos;
+		const auto norm = abs(distance);
+		const auto geo_size = current->bounding_box.size.real();
+		if (static double theta = 1.0; geo_size / norm < theta)
+		{
+			// we treat the quadtree cell as a source of long-range forces and use its center of mass.
+			const auto f = kernel_func(com, pos);
+			force += current->node_mass * f;
+		}
+		else
+		{
+			// Otherwise, we will recursively visit the child cells in the quadtree.
+			for (const auto child : current->children.value())
+			{
+				if (child->is_leaf() && child->is_empty())
+				{
+					continue;
+				}
+
+				//force += child->get_gravity_at(pos);
+				queue.push(child);
+			}
+		}
+
+	}
+
+	return force;
+}
+
+//
+//std::complex<double> acc;
+//
+//if (is_leaf())
+//{
+//	if (content->pos == pos) // making sure i != i
+//	{
+//		return 0;
+//	}
+//
+//	// Direct computation
+//	const auto f = kernel_func(content->pos, pos);
+//	return content->mass * f;
+//}
+//
+//const auto com = center_of_mass();
+//const auto distance = com - pos;
+//const auto norm = abs(distance);
+//const auto geo_size = bounding_box.size.real();
+//
+//if (static double theta = 1.0; geo_size / norm < theta)
+//{
+//	// we treat the quadtree cell as a source of long-range forces and use its center of mass.
+//	const auto f = kernel_func(com, pos);
+//	acc += node_mass * f;
+//}
+//else
+//{
+//	// Otherwise, we will recursively visit the child cells in the quadtree.
+//	for (const auto child : children.value())
+//	{
+//		if (child->is_leaf() && child->is_empty())
+//		{
+//			continue;
+//		}
+//
+//		acc += child->get_gravity_at(pos);
+//	}
+//}
+//
+//return acc;
