@@ -200,7 +200,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const ve
 
 	while (!queue.empty())
 	{
-		//std::cout<< queue.size() <<std::endl;
+		std::cout<< queue.size() <<std::endl;
 
 		const auto current = queue.front();
 		queue.pop();
@@ -240,6 +240,8 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 
 	while (!stack.empty())
 	{
+		std::cout << stack.size() << std::endl;
+
 		const auto current = stack.top();
 		stack.pop();
 
