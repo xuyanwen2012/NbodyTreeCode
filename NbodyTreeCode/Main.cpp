@@ -39,7 +39,7 @@ double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 /// <param name="bodies"></param>
 void estimate_forces(std::vector<vec2>& forces_n_log_n,
                      quadtree& qt,
-                     const std::vector<std::shared_ptr<body<double>>>& bodies)
+                     const std::vector<body_ptr>& bodies)
 {
 	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -69,13 +69,20 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	}
 }
 
+void _kernel_(quadtree& qt,
+              const body_ptr& bodies)
+{
+	const auto result = qt.compute_force_at_iterative_dfs_array(bodies->pos);
+	std::cout << result << std::endl;
+}
+
 /// <summary>
 /// The Main Entry to my N-body program
 /// </summary>
 /// <param name="argc"></param>
 /// <param name="argv"></param>
 /// <returns></returns>
-int main(const int argc, char* argv[]) 
+int main(const int argc, char* argv[])
 {
 	static constexpr bool show_rmse = false;
 
@@ -145,7 +152,8 @@ int main(const int argc, char* argv[])
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	estimate_forces(forces_n_log_n, qt, bodies);
+	// estimate_forces(forces_n_log_n, qt, bodies);
+	_kernel_(qt, bodies[0]);
 
 	// -------- Do Analysis --------
 
