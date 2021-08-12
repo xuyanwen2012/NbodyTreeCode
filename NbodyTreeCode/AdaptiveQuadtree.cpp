@@ -203,7 +203,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const ve
 
 	while (!queue.empty())
 	{
-		std::cout<< queue.size() <<std::endl;
+		std::cout << queue.size() << std::endl;
 
 		const auto current = queue.front();
 		queue.pop();
@@ -269,7 +269,6 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 				stack.push(child);
 			}
 		}
-
 	}
 
 	return force;
@@ -284,7 +283,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(co
 
 	stack[++stack_cp] = &root_;
 
-	while (stack_cp !=0)
+	while (stack_cp != 0)
 	{
 		const auto current = stack[stack_cp];
 		stack[stack_cp--] = nullptr;
@@ -310,7 +309,6 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(co
 				stack[++stack_cp] = child;
 			}
 		}
-
 	}
 
 	return force;
