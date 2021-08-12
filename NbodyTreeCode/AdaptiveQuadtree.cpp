@@ -26,7 +26,8 @@ std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 	const auto norm = abs(distance);
 	const auto geo_size = bounding_box.size.real();
 
-	if (static double theta = 1.0; geo_size / norm < theta)
+	static double theta = 1.0;
+	if (geo_size / norm < theta)
 	{
 		// we treat the quadtree cell as a source of long-range forces and use its center of mass.
 		const auto f = kernel_func(com, pos);
@@ -108,10 +109,10 @@ void adaptive::tree_node::split()
 
 	const auto my_uid = uid * 10;
 
-	const auto sw = new tree_node{my_uid + 0, rect{cx - hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
-	const auto se = new tree_node{my_uid + 1, rect{cx + hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
-	const auto nw = new tree_node{my_uid + 2, rect{cx - hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
-	const auto ne = new tree_node{my_uid + 3, rect{cx + hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
+	const auto sw = new tree_node{my_uid + 0, rect<double>{cx - hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
+	const auto se = new tree_node{my_uid + 1, rect<double>{cx + hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
+	const auto nw = new tree_node{my_uid + 2, rect<double>{cx - hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
+	const auto ne = new tree_node{my_uid + 3, rect<double>{cx + hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
 
 	children = tl::optional<std::array<tree_node*, 4>>{{sw, se, nw, ne}};
 }
@@ -119,7 +120,7 @@ void adaptive::tree_node::split()
 adaptive::quadtree::quadtree()
 {
 	num_particles = 0;
-	root_ = tree_node(1, rect{0.5, 0.5, 1.0, 1.0}, 0);
+	root_ = tree_node(1, rect<double>{0.5, 0.5, 1.0, 1.0}, 0);
 }
 
 void adaptive::quadtree::allocate_node_for_particle(const body_ptr& body_ptr)
@@ -345,3 +346,4 @@ std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node,
 	const auto f = kernel_func(com, pos);
 	return node->node_mass * f;
 }
+

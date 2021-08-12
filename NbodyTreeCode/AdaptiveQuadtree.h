@@ -120,8 +120,8 @@ namespace adaptive
 
 		// some statistical things
 		size_t num_particles;
-		inline static size_t num_nodes = 1;
-		inline static size_t depth = 0;
+		static size_t num_nodes;
+		static size_t depth;
 
 	private:
 		tree_node root_;
