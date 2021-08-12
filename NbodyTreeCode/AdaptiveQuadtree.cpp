@@ -103,6 +103,8 @@ void adaptive::tree_node::split()
 	const auto cy = bounding_box.center.imag();
 
 	const auto next_level = level + 1;
+	quadtree::depth = std::max(quadtree::depth, level);
+	quadtree::num_nodes += 4;
 
 	const auto my_uid = uid * 10;
 
@@ -116,13 +118,13 @@ void adaptive::tree_node::split()
 
 adaptive::quadtree::quadtree()
 {
-	num_particles_ = 0;
+	num_particles = 0;
 	root_ = tree_node(1, rect{0.5, 0.5, 1.0, 1.0}, 0);
 }
 
 void adaptive::quadtree::allocate_node_for_particle(const std::shared_ptr<body>& body_ptr)
 {
-	++num_particles_;
+	++num_particles;
 	root_.insert_body(body_ptr);
 }
 

@@ -125,6 +125,8 @@ int main(const int argc, char* argv[])
 	}
 
 	std::cout << "done!" << std::endl;
+	std::cout << "tree depth: " << adaptive::quadtree::depth << std::endl;
+	std::cout << "tree num nodes: " << adaptive::quadtree::num_nodes << std::endl;
 
 	return EXIT_SUCCESS;
 }

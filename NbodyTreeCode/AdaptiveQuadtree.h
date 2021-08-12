@@ -114,9 +114,13 @@ namespace adaptive
 		std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
 		std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
 
+		// some statistical things
+		size_t num_particles;
+		inline static size_t num_nodes = 1;
+		inline static size_t depth = 0;
+
 	private:
 		tree_node root_;
-		size_t num_particles_;
 
 		bool check_theta(const tree_node* node, const vec2& pos) const;
 		static std::complex<double> direct_compute(const std::shared_ptr<body>& body, const vec2& pos);
