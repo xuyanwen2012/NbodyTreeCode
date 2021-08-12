@@ -274,6 +274,47 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 	return force;
 }
 
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(const vec2& pos)
+{
+	std::complex<double> force;
+
+	size_t stack_cp = 0;
+	std::array<tree_node*, 1024> stack{};
+
+	stack[++stack_cp] = &root_;
+
+	while (stack_cp !=0)
+	{
+		const auto current = stack[stack_cp];
+		stack[stack_cp--] = nullptr;
+
+		if (current->is_leaf())
+		{
+			force += direct_compute(current->content, pos);
+		}
+		else if (check_theta(current, pos))
+		{
+			force += estimate_compute(current, pos);
+		}
+		else
+		{
+			// Otherwise, we will recursively visit the child cells in the quadtree.
+			for (const auto child : current->children.value())
+			{
+				if (child->is_leaf() && child->is_empty()) // skip empty nodes
+				{
+					continue;
+				}
+
+				stack[++stack_cp] = child;
+			}
+		}
+
+	}
+
+	return force;
+}
+
 std::complex<double> adaptive::quadtree::direct_compute(const std::shared_ptr<body>& body, const vec2& pos)
 {
 	std::complex<double> force;

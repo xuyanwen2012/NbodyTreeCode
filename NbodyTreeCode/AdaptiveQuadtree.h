@@ -113,6 +113,7 @@ namespace adaptive
 		std::complex<double> compute_force_at_recursive(const vec2& pos);
 		std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
 		std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
+		std::complex<double> compute_force_at_iterative_dfs_array(const vec2& pos);
 
 		// some statistical things
 		size_t num_particles;

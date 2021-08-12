@@ -108,6 +108,7 @@ int main(const int argc, char* argv[])
 	auto bfs = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
 	std::cout << "-----------------------------------------" << std::endl;
 	auto dfs = qt.compute_force_at_iterative_dfs(bodies[0]->pos);
+	auto dfs_array = qt.compute_force_at_iterative_dfs_array(bodies[0]->pos);
 
 	// -------- Do Analysis --------
 
