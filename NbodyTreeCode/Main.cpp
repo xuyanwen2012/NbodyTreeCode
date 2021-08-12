@@ -41,19 +41,19 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 
 		if constexpr (method == 0)
 		{
-			force = qt.compute_force_at_recursive(bodies[0]->pos);
+			force = qt.compute_force_at_recursive(bodies[i]->pos);
 		}
 		if constexpr (method == 1)
 		{
-			force = qt.compute_force_at_iterative_bfs(bodies[0]->pos);
+			force = qt.compute_force_at_iterative_bfs(bodies[i]->pos);
 		}
 		if constexpr (method == 2)
 		{
-			force = qt.compute_force_at_iterative_dfs(bodies[0]->pos);
+			force = qt.compute_force_at_iterative_dfs(bodies[i]->pos);
 		}
 		if constexpr (method == 3)
 		{
-			force = qt.compute_force_at_iterative_dfs_array(bodies[0]->pos);
+			force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
 		}
 
 		forces_n_log_n.push_back(force);
@@ -64,7 +64,7 @@ int main(const int argc, char* argv[])
 {
 	static constexpr bool show_rmse = false;
 
-	size_t num_bodies = 1024;
+	size_t num_bodies = 1024 * 1024;
 	//size_t num_bodies = 1024 * 1024;
 	if (argc == 2)
 	{
@@ -141,7 +141,6 @@ int main(const int argc, char* argv[])
 		std::cout << "RSME = " << rsme << std::endl;
 	}
 
-	std::cout << "done!" << std::endl;
 	std::cout << "tree depth: " << adaptive::quadtree::depth << std::endl;
 	std::cout << "tree num nodes: " << adaptive::quadtree::num_nodes << std::endl;
 
