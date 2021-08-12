@@ -140,6 +140,16 @@ void adaptive::quadtree::compute_center_of_mass()
 
 		if (!cur->is_leaf())
 		{
+			for (auto child = cur->children.value().rbegin(); child != cur->children.value().rend(); ++child)
+			{
+			}
+
+			std::for_each(cur->children.value().rbegin(),
+			              cur->children.value().rend(),
+			              [&](auto child)
+			              {
+			              });
+
 			for (auto child : cur->children.value())
 			{
 				queue.push(child);
@@ -182,11 +192,11 @@ std::complex<double> adaptive::quadtree::compute_force_at(const vec2& pos)
 	return root_.get_gravity_at(pos);
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at_iterative(const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const vec2& pos)
 {
 	std::complex<double> force;
 
-	std::queue<tree_node*> queue;
+	std::queue<tree_node*> queue{};
 	queue.push(&root_);
 
 	while (!queue.empty())
@@ -226,11 +236,9 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative(const vec2& 
 					continue;
 				}
 
-				//force += child->get_gravity_at(pos);
 				queue.push(child);
 			}
 		}
-
 	}
 
 	return force;
