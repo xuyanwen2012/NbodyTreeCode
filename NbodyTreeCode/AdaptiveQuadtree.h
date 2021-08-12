@@ -106,13 +106,20 @@ namespace adaptive
 	{
 	public:
 		quadtree();
+
 		void allocate_node_for_particle(const std::shared_ptr<body>& body_ptr);
 		void compute_center_of_mass();
-		std::complex<double> compute_force_at(const vec2& pos);
+
+		std::complex<double> compute_force_at_recursive(const vec2& pos);
+		std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
 		std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
 
 	private:
 		tree_node root_;
 		size_t num_particles_;
+
+		bool check_theta(const tree_node* node, const vec2& pos) const;
+		static std::complex<double> direct_compute(const std::shared_ptr<body>& body, const vec2& pos);
+		static std::complex<double> estimate_compute(const tree_node* node, const vec2& pos);
 	};
 }

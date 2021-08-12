@@ -1,7 +1,6 @@
 #include "AdaptiveQuadtree.h"
 
 #include <iostream>
-#include <list>
 #include <algorithm>
 #include <queue>
 #include <stack>
@@ -187,16 +186,16 @@ void adaptive::quadtree::compute_center_of_mass()
 	              });
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at(const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_recursive(const vec2& pos)
 {
 	return root_.get_gravity_at(pos);
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const vec2& pos)
 {
 	std::complex<double> force;
 
-	std::queue<tree_node*> queue{};
+	std::queue<tree_node*> queue;
 	queue.push(&root_);
 
 	while (!queue.empty())
@@ -206,25 +205,11 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 
 		if (current->is_leaf())
 		{
-			if (current->content->pos != pos)
-			{
-				const auto f = kernel_func(current->content->pos, pos);
-				force += f * current->content->mass;
-			}
-
-			// basically return
-			continue;
+			force += direct_compute(current->content, pos);
 		}
-
-		const auto com = current->center_of_mass();
-		const auto distance = com - pos;
-		const auto norm = abs(distance);
-		const auto geo_size = current->bounding_box.size.real();
-		if (static double theta = 1.0; geo_size / norm < theta)
+		else if (check_theta(current, pos))
 		{
-			// we treat the quadtree cell as a source of long-range forces and use its center of mass.
-			const auto f = kernel_func(com, pos);
-			force += current->node_mass * f;
+			force += estimate_compute(current, pos);
 		}
 		else
 		{
@@ -244,44 +229,55 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const ve
 	return force;
 }
 
-//
-//std::complex<double> acc;
-//
-//if (is_leaf())
-//{
-//	if (content->pos == pos) // making sure i != i
-//	{
-//		return 0;
-//	}
-//
-//	// Direct computation
-//	const auto f = kernel_func(content->pos, pos);
-//	return content->mass * f;
-//}
-//
-//const auto com = center_of_mass();
-//const auto distance = com - pos;
-//const auto norm = abs(distance);
-//const auto geo_size = bounding_box.size.real();
-//
-//if (static double theta = 1.0; geo_size / norm < theta)
-//{
-//	// we treat the quadtree cell as a source of long-range forces and use its center of mass.
-//	const auto f = kernel_func(com, pos);
-//	acc += node_mass * f;
-//}
-//else
-//{
-//	// Otherwise, we will recursively visit the child cells in the quadtree.
-//	for (const auto child : children.value())
-//	{
-//		if (child->is_leaf() && child->is_empty())
-//		{
-//			continue;
-//		}
-//
-//		acc += child->get_gravity_at(pos);
-//	}
-//}
-//
-//return acc;
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const vec2& pos)
+{
+	std::complex<double> force;
+
+	std::stack<tree_node*> stack;
+	stack.push(&root_);
+
+	while (!stack.empty())
+	{
+		const auto current = stack.top();
+		stack.pop();
+
+		if (current->is_leaf())
+		{
+			force += direct_compute(current->content, pos);
+		}
+
+	}
+
+	return force;
+}
+
+std::complex<double> adaptive::quadtree::direct_compute(const std::shared_ptr<body>& body, const vec2& pos)
+{
+	std::complex<double> force;
+
+	if (body->pos != pos)
+	{
+		const auto f = kernel_func(body->pos, pos);
+		force += f * body->mass;
+	}
+
+	return force;
+}
+
+bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos) const
+{
+	const auto com = node->center_of_mass();
+	const auto distance = com - pos;
+	const auto norm = abs(distance);
+	const auto geo_size = node->bounding_box.size.real();
+
+	static double theta = 1.0;
+	return geo_size / norm < theta;
+}
+
+std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node, const vec2& pos)
+{
+	const auto com = node->center_of_mass();
+	const auto f = kernel_func(com, pos);
+	return node->node_mass * f;
+}
