@@ -46,25 +46,25 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	{
 		std::complex<double> force;
 
-		static constexpr int method = 3;
+		//static constexpr int method = 3;
+		//if constexpr (method == 0)
+		//{
+		//	force = qt.compute_force_at_recursive(bodies[i]->pos);
+		//}
+		//if constexpr (method == 1)
+		//{
+		//	force = qt.compute_force_at_iterative_bfs(bodies[i]->pos);
+		//}
+		//if constexpr (method == 2)
+		//{
+		//	force = qt.compute_force_at_iterative_dfs(bodies[i]->pos);
+		//}
+		//if constexpr (method == 3)
+		//{
+		//	force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
+		//}
 
-		if constexpr (method == 0)
-		{
-			force = qt.compute_force_at_recursive(bodies[i]->pos);
-		}
-		if constexpr (method == 1)
-		{
-			force = qt.compute_force_at_iterative_bfs(bodies[i]->pos);
-		}
-		if constexpr (method == 2)
-		{
-			force = qt.compute_force_at_iterative_dfs(bodies[i]->pos);
-		}
-		if constexpr (method == 3)
-		{
-			force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
-		}
-
+		force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
 		forces_n_log_n.push_back(force);
 	}
 }
