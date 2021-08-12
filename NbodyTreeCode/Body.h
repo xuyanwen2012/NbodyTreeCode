@@ -2,8 +2,7 @@
 
 #include <complex>
 
-template <typename T,
-          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
+template <typename T>
 struct body
 {
 	body(const int uid, const std::complex<T> pos, const double mass)
@@ -16,8 +15,7 @@ struct body
 	double mass;
 };
 
-template <typename T,
-          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
+template <typename T>
 std::complex<T> kernel_func(
 	const std::complex<T>& i,
 	const std::complex<T>& j

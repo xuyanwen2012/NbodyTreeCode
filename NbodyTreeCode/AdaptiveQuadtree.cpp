@@ -113,7 +113,7 @@ void adaptive::tree_node::split()
 	const auto nw = new tree_node{my_uid + 2, rect{cx - hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
 	const auto ne = new tree_node{my_uid + 3, rect{cx + hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
 
-	children = std::optional<std::array<tree_node*, 4>>{{sw, se, nw, ne}};
+	children = tl::optional<std::array<tree_node*, 4>>{{sw, se, nw, ne}};
 }
 
 adaptive::quadtree::quadtree()

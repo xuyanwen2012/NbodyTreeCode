@@ -2,7 +2,6 @@
 
 #include <array>
 #include <complex>
-#include <optional>
 
 #ifdef __linux__
 #include <algorithm>
@@ -11,6 +10,7 @@
 
 #include "Body.h"
 #include "Rect.h"
+#include "optional.hpp"
 
 namespace adaptive
 {
@@ -54,7 +54,7 @@ namespace adaptive
 		/// ---+---
 		///	 0 | 1
 		/// </summary>
-		std::optional<std::array<tree_node*, 4>> children;
+		tl::optional<std::array<tree_node*, 4>> children;
 
 		/// <summary>
 		/// This field stores the total mass of this node and its descendants
