@@ -9,6 +9,9 @@
 #ifdef __linux__
 #include <algorithm>
 #include <cstdlib>
+#include <omp.h>
+
+int DEC_NUM_CONSUMERS = 1;
 #endif
 
 using namespace adaptive;
@@ -54,12 +57,15 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// </summary>
 /// <param name="qt"></param>
 /// <param name="bodies"></param>
+/// <param name="t0"> Must be there to make the simulator happy. </param>
+/// <param name="t1"> Must be there to make the simulator happy. </param>
 // ReSharper disable once CppInconsistentNaming
-void _kernel_(quadtree& qt,  // NOLINT(bugprone-reserved-identifier)
-              const body_ptr& bodies)
+void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
+              const body_ptr& bodies,
+              int t0,
+              int t1)
 {
-	const auto result = qt.compute_force_at_iterative_dfs_array(bodies->pos);
-	std::cout << result << std::endl;
+	qt.compute_force_at_iterative_dfs_array(bodies->pos);
 }
 
 /// <summary>
@@ -68,9 +74,9 @@ void _kernel_(quadtree& qt,  // NOLINT(bugprone-reserved-identifier)
 /// <param name="argc"></param>
 /// <param name="argv"></param>
 /// <returns></returns>
-int main(const int argc, char* argv[])  // NOLINT(bugprone-exception-escape)
+int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
-	static constexpr bool show_rmse = true;
+	static constexpr bool show_rmse = false;
 
 	size_t num_bodies = 1024;
 	if (argc == 2)
@@ -132,8 +138,7 @@ int main(const int argc, char* argv[])  // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	estimate_forces(forces_n_log_n, qt, bodies);
-	//_kernel_(qt, bodies[0]);
+	_kernel_(qt, bodies[0], 0, 0);
 
 	// -------- Do Analysis --------
 
