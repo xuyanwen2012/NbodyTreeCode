@@ -10,7 +10,6 @@
 
 #include "Body.h"
 #include "Rect.h"
-#include "optional.hpp"
 
 namespace adaptive
 {
@@ -26,13 +25,15 @@ namespace adaptive
 
 		friend class quadtree;
 
-		tree_node() : uid(-1), level(0), node_mass(0)
+		tree_node() : uid(-1), level(0), node_mass(0), is_leaf_(true)
 		{
+			children = {};
 		}
 
 		tree_node(const int uid, const rect<double> bound, const size_t level)
-			: uid(uid), level(level), bounding_box(bound), node_mass(0)
+			: uid(uid), level(level), bounding_box(bound), node_mass(0), is_leaf_(true)
 		{
+			children = {};
 		}
 
 		int uid;
@@ -54,7 +55,7 @@ namespace adaptive
 		/// ---+---
 		///	 0 | 1
 		/// </summary>
-		tl::optional<std::array<tree_node*, 4>> children;
+		std::array<tree_node*, 4> children;
 
 		/// <summary>
 		/// This field stores the total mass of this node and its descendants
@@ -70,22 +71,17 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		[[nodiscard]] bool is_leaf() const { return !children.has_value(); }
+		bool is_empty() const { return content == nullptr; }
 
 		/// <summary>
 		///
 		/// </summary>
-		[[nodiscard]] bool is_empty() const { return content == nullptr; }
+		direction determine_quadrant(const vec2& pos) const;
 
 		/// <summary>
 		///
 		/// </summary>
-		[[nodiscard]] direction determine_quadrant(const vec2& pos) const;
-
-		/// <summary>
-		///
-		/// </summary>
-		[[nodiscard]] std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
+		std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
 
 		/// <summary>
 		///
@@ -93,6 +89,8 @@ namespace adaptive
 		std::complex<double> get_gravity_at(const vec2& pos);
 
 	private:
+		bool is_leaf_;
+
 		/// <summary>
 		///
 		/// </summary>

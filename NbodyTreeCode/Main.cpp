@@ -44,27 +44,7 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		std::complex<double> force;
-
-		//static constexpr int method = 3;
-		//if constexpr (method == 0)
-		//{
-		//	force = qt.compute_force_at_recursive(bodies[i]->pos);
-		//}
-		//if constexpr (method == 1)
-		//{
-		//	force = qt.compute_force_at_iterative_bfs(bodies[i]->pos);
-		//}
-		//if constexpr (method == 2)
-		//{
-		//	force = qt.compute_force_at_iterative_dfs(bodies[i]->pos);
-		//}
-		//if constexpr (method == 3)
-		//{
-		//	force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
-		//}
-
-		force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
+		const auto force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
 		forces_n_log_n.push_back(force);
 	}
 }
@@ -152,7 +132,7 @@ int main(const int argc, char* argv[])
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	// estimate_forces(forces_n_log_n, qt, bodies);
+	estimate_forces(forces_n_log_n, qt, bodies);
 	_kernel_(qt, bodies[0]);
 
 	// -------- Do Analysis --------
