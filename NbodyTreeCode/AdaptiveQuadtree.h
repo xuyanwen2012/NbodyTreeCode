@@ -26,6 +26,7 @@ namespace adaptive
 		friend class quadtree;
 
 		tree_node() = delete;
+
 		tree_node(const int uid, const rect<double> bound, const size_t level)
 			: uid(uid), level(level), bounding_box(bound), node_mass(0), is_leaf_(true)
 		{
@@ -73,13 +74,7 @@ namespace adaptive
 		/// </summary>
 		std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
 
-		/// <summary>
-		///
-		/// </summary>
-		std::complex<double> get_gravity_at(const vec2& pos);
-
 	private:
-
 		bool is_leaf_;
 		void insert_body(const body_ptr& body_ptr);
 		direction determine_quadrant(const vec2& pos) const;
@@ -89,7 +84,6 @@ namespace adaptive
 	class quadtree
 	{
 	public:
-
 		/// <summary>
 		/// create a empty quadtree with only a node.
 		/// </summary>
@@ -108,9 +102,11 @@ namespace adaptive
 		/// </summary>
 		void compute_center_of_mass();
 
-		//std::complex<double> compute_force_at_recursive(const vec2& pos);
-		//std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
-		//std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pos"></param>
+		/// <returns></returns>
 		std::complex<double> compute_force_at_iterative_dfs_array(const vec2& pos);
 
 		// some statistical things

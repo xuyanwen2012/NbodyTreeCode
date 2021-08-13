@@ -54,7 +54,8 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// </summary>
 /// <param name="qt"></param>
 /// <param name="bodies"></param>
-void _kernel_(quadtree& qt,
+// ReSharper disable once CppInconsistentNaming
+void _kernel_(quadtree& qt,  // NOLINT(bugprone-reserved-identifier)
               const body_ptr& bodies)
 {
 	const auto result = qt.compute_force_at_iterative_dfs_array(bodies->pos);
@@ -67,7 +68,7 @@ void _kernel_(quadtree& qt,
 /// <param name="argc"></param>
 /// <param name="argv"></param>
 /// <returns></returns>
-int main(const int argc, char* argv[])
+int main(const int argc, char* argv[])  // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = true;
 
@@ -105,7 +106,7 @@ int main(const int argc, char* argv[])
 				{
 					continue;
 				}
-				
+
 				const auto force = kernel_func(
 					bodies[i]->pos,
 					bodies[j]->pos
