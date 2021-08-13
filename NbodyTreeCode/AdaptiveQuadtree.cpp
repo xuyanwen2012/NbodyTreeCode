@@ -154,6 +154,11 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(co
 
 		if (current->is_leaf_)
 		{
+			if (current->is_empty())
+			{
+				continue;
+			}
+
 			force += direct_compute(current->content, pos);
 		}
 		else if (check_theta(current, pos))
@@ -162,14 +167,8 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(co
 		}
 		else
 		{
-			// Otherwise, we will recursively visit the child cells in the quadtree.
 			for (const auto child : current->children)
 			{
-				if (child->is_leaf_ && child->is_empty()) // skip empty nodes
-				{
-					continue;
-				}
-
 				stack[++stack_cp] = child;
 			}
 		}
