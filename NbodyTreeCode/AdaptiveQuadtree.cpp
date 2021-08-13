@@ -3,7 +3,6 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
-//#include <stack>
 
 std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 {
@@ -127,10 +126,10 @@ void adaptive::tree_node::split()
 	children[3] = ne;
 }
 
-adaptive::quadtree::quadtree()
+adaptive::quadtree::quadtree() :
+	num_particles(0),
+	root_(tree_node{1, rect<double>{0.5, 0.5, 1.0, 1.0}, 0})
 {
-	num_particles = 0;
-	root_ = tree_node(1, rect<double>{0.5, 0.5, 1.0, 1.0}, 0);
 }
 
 void adaptive::quadtree::allocate_node_for_particle(const body_ptr& body_ptr)

@@ -25,15 +25,10 @@ namespace adaptive
 
 		friend class quadtree;
 
-		tree_node() : uid(-1), level(0), node_mass(0), is_leaf_(true)
-		{
-			children = {};
-		}
-
+		tree_node() = delete;
 		tree_node(const int uid, const rect<double> bound, const size_t level)
 			: uid(uid), level(level), bounding_box(bound), node_mass(0), is_leaf_(true)
 		{
-			children = {};
 		}
 
 		int uid;
@@ -55,7 +50,7 @@ namespace adaptive
 		/// ---+---
 		///	 0 | 1
 		/// </summary>
-		std::array<tree_node*, 4> children;
+		std::array<tree_node*, 4> children{};
 
 		/// <summary>
 		/// This field stores the total mass of this node and its descendants
@@ -76,11 +71,6 @@ namespace adaptive
 		/// <summary>
 		///
 		/// </summary>
-		direction determine_quadrant(const vec2& pos) const;
-
-		/// <summary>
-		///
-		/// </summary>
 		std::complex<double> center_of_mass() const { return weighted_pos / node_mass; }
 
 		/// <summary>
@@ -89,31 +79,38 @@ namespace adaptive
 		std::complex<double> get_gravity_at(const vec2& pos);
 
 	private:
+
 		bool is_leaf_;
-
-		/// <summary>
-		///
-		/// </summary>
-		///	<param name="body_ptr"> The body to be inserted into the quadtree. </param>
 		void insert_body(const body_ptr& body_ptr);
-
-		/// <summary>
-		///
-		/// </summary>
+		direction determine_quadrant(const vec2& pos) const;
 		void split();
 	};
 
 	class quadtree
 	{
 	public:
+
+		/// <summary>
+		/// create a empty quadtree with only a node.
+		/// </summary>
 		quadtree();
 
+		/// <summary>
+		/// Use this function to insert a body into the quadtree.
+		/// </summary>
+		/// <param name="body_ptr"></param>
 		void allocate_node_for_particle(const body_ptr& body_ptr);
+
+		/// <summary>
+		/// Once every particles are allocated into the quadtree, we can
+		///	compute the center of masses and the quadtree is ready for
+		///	inquiry.
+		/// </summary>
 		void compute_center_of_mass();
 
-		std::complex<double> compute_force_at_recursive(const vec2& pos);
-		std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
-		std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
+		//std::complex<double> compute_force_at_recursive(const vec2& pos);
+		//std::complex<double> compute_force_at_iterative_bfs(const vec2& pos);
+		//std::complex<double> compute_force_at_iterative_dfs(const vec2& pos);
 		std::complex<double> compute_force_at_iterative_dfs_array(const vec2& pos);
 
 		// some statistical things
