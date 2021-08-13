@@ -45,7 +45,7 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
 		const auto force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
-		forces_n_log_n.push_back(force);
+		forces_n_log_n[i] = force;
 	}
 }
 

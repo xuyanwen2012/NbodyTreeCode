@@ -118,7 +118,7 @@ namespace adaptive
 		tree_node root_;
 
 		bool check_theta(const tree_node* node, const vec2& pos) const;
-		static std::complex<double> direct_compute(const body_ptr& body, const vec2& pos);
-		static std::complex<double> estimate_compute(const tree_node* node, const vec2& pos);
+		static inline std::complex<double> direct_compute(const body_ptr& body, const vec2& pos);
+		static inline std::complex<double> estimate_compute(const tree_node* node, const vec2& pos);
 	};
 }
