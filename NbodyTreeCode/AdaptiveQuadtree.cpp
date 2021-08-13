@@ -6,7 +6,7 @@
 
 std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 {
-	std::complex<double> acc;
+	std::complex<double> force;
 
 	if (is_leaf_)
 	{
@@ -30,7 +30,7 @@ std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 	{
 		// we treat the quadtree cell as a source of long-range forces and use its center of mass.
 		const auto f = kernel_func(com, pos);
-		acc += node_mass * f;
+		force += node_mass * f;
 	}
 	else
 	{
@@ -47,11 +47,11 @@ std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
 				continue;
 			}
 
-			acc += child->get_gravity_at(pos);
+			force += child->get_gravity_at(pos);
 		}
 	}
 
-	return acc;
+	return force;
 }
 
 void adaptive::tree_node::insert_body(const body_ptr& body_ptr)

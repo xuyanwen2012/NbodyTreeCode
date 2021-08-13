@@ -69,9 +69,9 @@ void _kernel_(quadtree& qt,
 /// <returns></returns>
 int main(const int argc, char* argv[])
 {
-	static constexpr bool show_rmse = false;
+	static constexpr bool show_rmse = true;
 
-	size_t num_bodies = 1024 * 1024;
+	size_t num_bodies = 1024;
 	if (argc == 2)
 	{
 		num_bodies = std::stoi(argv[1]);
@@ -81,14 +81,8 @@ int main(const int argc, char* argv[])
 	std::vector<body_ptr> bodies;
 
 	// The force tables used to store results.
-	std::vector<vec2> forces_n_squared;
-	if (show_rmse)
-	{
-		forces_n_squared.reserve(num_bodies);
-	}
-
-	std::vector<vec2> forces_n_log_n;
-	forces_n_log_n.reserve(num_bodies);
+	std::vector<vec2> forces_n_squared(num_bodies);
+	std::vector<vec2> forces_n_log_n(num_bodies);
 
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -111,7 +105,7 @@ int main(const int argc, char* argv[])
 				{
 					continue;
 				}
-
+				
 				const auto force = kernel_func(
 					bodies[i]->pos,
 					bodies[j]->pos
@@ -138,7 +132,7 @@ int main(const int argc, char* argv[])
 
 	// 3) Estimate N-Body Forces
 	estimate_forces(forces_n_log_n, qt, bodies);
-	_kernel_(qt, bodies[0]);
+	//_kernel_(qt, bodies[0]);
 
 	// -------- Do Analysis --------
 
