@@ -49,6 +49,11 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	}
 }
 
+/// <summary>
+/// We use this for the Princeton tool. Basically only doing one for computation.
+/// </summary>
+/// <param name="qt"></param>
+/// <param name="bodies"></param>
 void _kernel_(quadtree& qt,
               const body_ptr& bodies)
 {
@@ -69,7 +74,7 @@ int main(const int argc, char* argv[])
 	size_t num_bodies = 1024 * 1024;
 	if (argc == 2)
 	{
-		num_bodies = atoi(argv[1]);
+		num_bodies = std::stoi(argv[1]);
 	}
 
 	// The main particle table
