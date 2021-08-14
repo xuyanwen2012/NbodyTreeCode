@@ -67,9 +67,11 @@ void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
               int t0,
               int t1)
 {
+	std::array<tree_node*, 1024> stack{};
+
 	for (size_t i = 0; i < num_to_sim; ++i)
 	{
-		qt.compute_force_at_iterative_dfs_array(bodies->pos);
+		qt.compute_force_at_iterative_dfs_array(stack, bodies->pos);
 	}
 }
 
@@ -83,7 +85,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = false;
 
-	constexpr size_t num_bodies = 1024;
+	constexpr size_t num_bodies = 1024 * 1024;
 	size_t num_to_sim = 1;
 
 	if (argc == 2)

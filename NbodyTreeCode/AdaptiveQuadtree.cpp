@@ -138,12 +138,11 @@ void adaptive::quadtree::compute_center_of_mass()
 	              });
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos)
 {
 	std::complex<double> force;
 
 	size_t stack_cp = 0;
-	std::array<tree_node*, 1024> stack{};
 
 	stack[++stack_cp] = &root_;
 
