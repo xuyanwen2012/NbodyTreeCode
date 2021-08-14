@@ -57,15 +57,20 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// </summary>
 /// <param name="qt"></param>
 /// <param name="bodies"></param>
+/// <param name="num_to_sim"></param>
 /// <param name="t0"> Must be there to make the simulator happy. </param>
 /// <param name="t1"> Must be there to make the simulator happy. </param>
 // ReSharper disable once CppInconsistentNaming
 void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
               const body_ptr& bodies,
+              const size_t num_to_sim,
               int t0,
               int t1)
 {
-	qt.compute_force_at_iterative_dfs_array(bodies->pos);
+	for (size_t i = 0; i < num_to_sim; ++i)
+	{
+		qt.compute_force_at_iterative_dfs_array(bodies->pos);
+	}
 }
 
 /// <summary>
@@ -78,10 +83,12 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = false;
 
-	size_t num_bodies = 1024;
+	constexpr size_t num_bodies = 1024;
+	size_t num_to_sim = 1;
+
 	if (argc == 2)
 	{
-		num_bodies = std::stoi(argv[1]);
+		num_to_sim = std::stoi(argv[1]);
 	}
 
 	// The main particle table
@@ -138,7 +145,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	_kernel_(qt, bodies[0], 0, 0);
+	_kernel_(qt, bodies[0], num_to_sim,  0, 0);
 
 	// -------- Do Analysis --------
 
