@@ -138,7 +138,7 @@ void adaptive::quadtree::compute_center_of_mass()
 	              });
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos, const double theta)
 {
 	std::complex<double> force;
 
@@ -160,7 +160,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(st
 
 			force += direct_compute(current->content, pos);
 		}
-		else if (check_theta(current, pos))
+		else if (check_theta(current, pos, theta))
 		{
 			force += estimate_compute(current, pos);
 		}
@@ -189,14 +189,13 @@ std::complex<double> adaptive::quadtree::direct_compute(const body_ptr& body, co
 	return force;
 }
 
-bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos) const
+bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, const double theta) const
 {
 	const auto com = node->center_of_mass();
 	const auto distance = com - pos;
 	const auto norm = abs(distance);
 	const auto geo_size = node->bounding_box.size.real();
 
-	static double theta = 1.0;
 	return geo_size / norm < theta;
 }
 

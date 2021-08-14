@@ -60,12 +60,14 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// <param name="qt"></param>
 /// <param name="bodies"></param>
 /// <param name="num_to_sim"></param>
+/// <param name="theta"></param>
 /// <param name="t0"> Must be there to make the simulator happy. </param>
 /// <param name="t1"> Must be there to make the simulator happy. </param>
 // ReSharper disable once CppInconsistentNaming
 void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
 			  const std::vector<body_ptr>& bodies,
               const size_t num_to_sim,
+			  const double theta,
               int t0,
               int t1)
 {
@@ -89,10 +91,16 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 
 	constexpr size_t num_bodies = 1024 * 1024;
 	size_t num_to_sim = 1;
+	double theta = 1.0;
 
 	if (argc == 2)
 	{
 		num_to_sim = std::stoi(argv[1]);
+	}
+
+	if (argc == 3)
+	{
+		theta = std::stod(argv[2]);
 	}
 
 	// The main particle table
@@ -149,7 +157,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	_kernel_(qt, bodies, num_to_sim,  0, 0);
+	_kernel_(qt, bodies, num_to_sim, theta,  0, 0);
 
 	// -------- Do Analysis --------
 
@@ -166,6 +174,8 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 		std::cout << "RSME = " << rsme << std::endl;
 	}
 
+	std::cout << "num_to_sim: " << num_to_sim << std::endl;
+	std::cout << "theta: " << theta << std::endl;
 	std::cout << "tree depth: " << quadtree::depth << std::endl;
 	std::cout << "tree num nodes: " << quadtree::num_nodes << std::endl;
 

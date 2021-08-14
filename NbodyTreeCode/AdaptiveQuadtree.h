@@ -107,8 +107,9 @@ namespace adaptive
 		/// </summary>
 		/// <param name="stack"></param>
 		/// <param name="pos"></param>
+		/// <param name="theta"></param>
 		/// <returns></returns>
-		std::complex<double> compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos);
+		std::complex<double> compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos, double theta = 1.0);
 
 		// some statistical things
 		size_t num_particles;
@@ -118,7 +119,7 @@ namespace adaptive
 	private:
 		tree_node root_;
 
-		bool check_theta(const tree_node* node, const vec2& pos) const;
+		bool check_theta(const tree_node* node, const vec2& pos, double theta) const;
 		static inline std::complex<double> direct_compute(const body_ptr& body, const vec2& pos);
 		static inline std::complex<double> estimate_compute(const tree_node* node, const vec2& pos);
 	};
