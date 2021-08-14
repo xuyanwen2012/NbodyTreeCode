@@ -64,7 +64,7 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// <param name="t1"> Must be there to make the simulator happy. </param>
 // ReSharper disable once CppInconsistentNaming
 void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
-              const body_ptr& bodies,
+			  const std::vector<body_ptr>& bodies,
               const size_t num_to_sim,
               int t0,
               int t1)
@@ -73,7 +73,7 @@ void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
 
 	for (size_t i = 0; i < num_to_sim; ++i)
 	{
-		qt.compute_force_at_iterative_dfs_array(stack, bodies->pos);
+		qt.compute_force_at_iterative_dfs_array(stack, bodies[i]->pos);
 	}
 }
 
@@ -149,7 +149,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	_kernel_(qt, bodies[0], num_to_sim,  0, 0);
+	_kernel_(qt, bodies, num_to_sim,  0, 0);
 
 	// -------- Do Analysis --------
 
