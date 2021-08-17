@@ -109,8 +109,11 @@ namespace adaptive
 		/// <param name="pos"></param>
 		/// <param name="theta"></param>
 		/// <returns></returns>
-		std::complex<double> compute_force_at_iterative_dfs_array(std::array<tree_node*, 1024>& stack, const vec2& pos,
-		                                                          double theta);
+		std::complex<double> compute_force_at_iterative_dfs_array(
+			std::array<tree_node*, 1024>& stack,
+			const vec2& pos,
+			double theta
+		);
 
 		// some statistical things
 		size_t num_particles;
