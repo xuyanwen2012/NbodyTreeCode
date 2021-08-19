@@ -50,7 +50,7 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
 		const auto force = qt.compute_force_at_iterative_dfs_array(stack, bodies[i]->pos, 1.0);
-		forces_n_log_n[i] = force;
+		forces_n_log_n[i] = - force;
 	}
 }
 
@@ -87,7 +87,7 @@ void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
 /// <returns></returns>
 int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
-	static constexpr bool show_rmse = false;
+	static constexpr bool show_rmse = true;
 
 	constexpr size_t num_bodies = 1024 * 1024;
 	size_t num_to_sim = 1;
@@ -157,10 +157,10 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	std::array<tree_node*, 1024> stack{};
-	_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
+	//std::array<tree_node*, 1024> stack{};
+	//_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
 
-	//estimate_forces(forces_n_log_n, qt, bodies);
+	estimate_forces(forces_n_log_n, qt, bodies);
 
 
 	// -------- Do Analysis --------
@@ -173,7 +173,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 			tmp += pow(forces_n_squared[i] - forces_n_log_n[i], 2);
 		}
 
-		const auto n = static_cast<double>(num_bodies);
+		constexpr auto n = static_cast<double>(num_bodies);
 		const auto rsme = sqrt(tmp / n);
 		std::cout << "RSME = " << rsme << std::endl;
 	}

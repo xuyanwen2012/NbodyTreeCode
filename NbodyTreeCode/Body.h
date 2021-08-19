@@ -18,5 +18,6 @@ struct body
 template <typename T>
 std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
 {
-	return log(abs(i - j));
+	const auto dist = i - j;
+	return dist / pow(abs(dist), 3);
 }
