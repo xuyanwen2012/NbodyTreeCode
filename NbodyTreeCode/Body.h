@@ -15,6 +15,14 @@ struct body
 	double mass;
 };
 
+/// <summary>
+/// The main kernel function used to compute the pairwise force between
+///	particles. 
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="i">The first particle.</param>
+/// <param name="j">The second particle.</param>
+/// <returns>The force.</returns>
 template <typename T>
 std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
 {
