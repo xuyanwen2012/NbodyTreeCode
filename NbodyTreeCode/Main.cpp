@@ -89,7 +89,7 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = false;
 
-	constexpr size_t num_bodies = 1024 * 1024;
+	constexpr size_t num_bodies = 1024;
 	size_t num_to_sim = 1;
 	double theta = 1.0;
 
