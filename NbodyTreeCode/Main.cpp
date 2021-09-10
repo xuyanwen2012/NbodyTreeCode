@@ -157,10 +157,10 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	//std::array<tree_node*, 1024> stack{};
-	//_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
+	std::array<tree_node*, 1024> stack{};
+	_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
 
-	estimate_forces(forces_n_log_n, qt, bodies);
+	//estimate_forces(forces_n_log_n, qt, bodies);
 
 
 	// -------- Do Analysis --------
