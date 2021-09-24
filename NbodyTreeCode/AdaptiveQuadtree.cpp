@@ -143,14 +143,18 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
 {
 	std::complex<double> force;
 
-	size_t stack_cp = 0;
+	size_t stack_cp = 0; // aka (stack current pointer)
 
-	stack[++stack_cp] = &root_;
+	// Push the root node to the stack
+	++stack_cp;
+	stack[stack_cp] = &root_;
 
 	while (stack_cp != 0)
 	{
-		const auto current = stack[stack_cp];
-		stack[stack_cp--] = nullptr;
+		// Pop from the stack as 'current'
+		const tree_node* current = stack[stack_cp];
+		stack_cp--;
+		stack[stack_cp] = nullptr;
 
 		if (current->is_leaf_)
 		{
@@ -159,17 +163,29 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
 				continue;
 			}
 
+			// On leaf nodes we reach the base case and we want to do the direct
+			// particle-to-particle computation.
+
 			force += direct_compute(current->content, pos);
 		}
 		else if (check_theta(current, pos, theta))
 		{
+			// On non-leaf nodes if the current node is under a distance
+			// threshold (theta) then we approximate this node with a
+			// particle-to-node computation.
+
 			force += estimate_compute(current, pos);
 		}
 		else
 		{
+			// On non-leaf nodes and if the current node's distance is greater
+			// than the threshold we want to recursively visit its children. 
+
 			for (const auto child : current->children)
 			{
-				stack[++stack_cp] = child;
+				// Push the child to the stack
+				++stack_cp;
+				stack[stack_cp] = child;
 			}
 		}
 	}
