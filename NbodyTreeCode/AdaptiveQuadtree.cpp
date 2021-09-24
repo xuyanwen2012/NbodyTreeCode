@@ -181,7 +181,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
 			// On non-leaf nodes and if the current node's distance is greater
 			// than the threshold we want to recursively visit its children. 
 
-			for (const auto child : current->children)
+			for (tree_node* child : current->children)
 			{
 				// Push the child to the stack
 				++stack_cp;
