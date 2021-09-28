@@ -146,15 +146,13 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
 	size_t stack_cp = 0; // aka (stack current pointer)
 
 	// Push the root node to the stack
-	++stack_cp;
-	stack[stack_cp] = &root_;
+	stack[++stack_cp] = &root_;
 
 	while (stack_cp != 0)
 	{
 		// Pop from the stack as 'current'
 		const tree_node* current = stack[stack_cp];
-		stack_cp--;
-		stack[stack_cp] = nullptr;
+		stack[stack_cp--] = nullptr;
 
 		if (current->is_leaf_)
 		{
@@ -184,8 +182,7 @@ std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
 			for (tree_node* child : current->children)
 			{
 				// Push the child to the stack
-				++stack_cp;
-				stack[stack_cp] = child;
+				stack[++stack_cp] = child;
 			}
 		}
 	}
