@@ -203,7 +203,7 @@ std::complex<double> adaptive::quadtree::direct_compute(const body_ptr& body, co
 	return force;
 }
 
-bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, const double theta) const
+bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, const double theta)
 {
 	const auto com = node->center_of_mass();
 	const auto distance = com - pos;
