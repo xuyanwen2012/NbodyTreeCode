@@ -3,55 +3,10 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
-#include <stack>
-
-std::complex<double> adaptive::tree_node::get_gravity_at(const vec2& pos)
-{
-	std::complex<double> acc;
-
-	if (is_leaf())
-	{
-		if (content->pos == pos) // making sure i != i
-		{
-			return 0;
-		}
-
-		// Direct computation
-		const auto f = kernel_func(content->pos, pos);
-		return content->mass * f;
-	}
-
-	const auto com = center_of_mass();
-	const auto distance = com - pos;
-	const auto norm = abs(distance);
-	const auto geo_size = bounding_box.size.real();
-
-	if (static double theta = 1.0; geo_size / norm < theta)
-	{
-		// we treat the quadtree cell as a source of long-range forces and use its center of mass.
-		const auto f = kernel_func(com, pos);
-		acc += node_mass * f;
-	}
-	else
-	{
-		// Otherwise, we will recursively visit the child cells in the quadtree.
-		for (const auto child : children.value())
-		{
-			if (child->is_leaf() && child->is_empty())
-			{
-				continue;
-			}
-
-			acc += child->get_gravity_at(pos);
-		}
-	}
-
-	return acc;
-}
 
 void adaptive::tree_node::insert_body(const body_ptr& body_ptr)
 {
-	if (is_leaf())
+	if (is_leaf_)
 	{
 		if (is_empty())
 		{
@@ -64,13 +19,13 @@ void adaptive::tree_node::insert_body(const body_ptr& body_ptr)
 		split();
 
 		const auto quadrant = static_cast<size_t>(determine_quadrant(content->pos));
-		children->at(quadrant)->insert_body(content);
+		children.at(quadrant)->insert_body(content);
 
 		content.reset();
 	}
 
 	const auto new_quadrant = static_cast<size_t>(determine_quadrant(body_ptr->pos));
-	children->at(new_quadrant)->insert_body(body_ptr);
+	children.at(new_quadrant)->insert_body(body_ptr);
 }
 
 adaptive::tree_node::direction adaptive::tree_node::determine_quadrant(const vec2& pos) const
@@ -97,6 +52,8 @@ adaptive::tree_node::direction adaptive::tree_node::determine_quadrant(const vec
 
 void adaptive::tree_node::split()
 {
+	is_leaf_ = false;
+
 	const auto hw = bounding_box.size.real() / 2.0;
 	const auto hh = bounding_box.size.imag() / 2.0;
 	const auto cx = bounding_box.center.real();
@@ -108,18 +65,21 @@ void adaptive::tree_node::split()
 
 	const auto my_uid = uid * 10;
 
-	const auto sw = new tree_node{my_uid + 0, rect{cx - hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
-	const auto se = new tree_node{my_uid + 1, rect{cx + hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
-	const auto nw = new tree_node{my_uid + 2, rect{cx - hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
-	const auto ne = new tree_node{my_uid + 3, rect{cx + hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
+	const auto sw = new tree_node{my_uid + 0, rect<double>{cx - hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
+	const auto se = new tree_node{my_uid + 1, rect<double>{cx + hw / 2.0, cy - hh / 2.0, hw, hh}, next_level};
+	const auto nw = new tree_node{my_uid + 2, rect<double>{cx - hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
+	const auto ne = new tree_node{my_uid + 3, rect<double>{cx + hw / 2.0, cy + hh / 2.0, hw, hh}, next_level};
 
-	children = std::optional<std::array<tree_node*, 4>>{{sw, se, nw, ne}};
+	children[0] = sw;
+	children[1] = se;
+	children[2] = nw;
+	children[3] = ne;
 }
 
-adaptive::quadtree::quadtree()
+adaptive::quadtree::quadtree() :
+	num_particles(0),
+	root_(tree_node{1, rect<double>{0.5, 0.5, 1.0, 1.0}, 0})
 {
-	num_particles = 0;
-	root_ = tree_node(1, rect{0.5, 0.5, 1.0, 1.0}, 0);
 }
 
 void adaptive::quadtree::allocate_node_for_particle(const body_ptr& body_ptr)
@@ -139,19 +99,9 @@ void adaptive::quadtree::compute_center_of_mass()
 		const auto cur = queue.front();
 		queue.pop();
 
-		if (!cur->is_leaf())
+		if (!cur->is_leaf_)
 		{
-			for (auto child = cur->children.value().rbegin(); child != cur->children.value().rend(); ++child)
-			{
-			}
-
-			std::for_each(cur->children.value().rbegin(),
-			              cur->children.value().rend(),
-			              [&](auto child)
-			              {
-			              });
-
-			for (auto child : cur->children.value())
+			for (auto child : cur->children)
 			{
 				queue.push(child);
 			}
@@ -166,7 +116,7 @@ void adaptive::quadtree::compute_center_of_mass()
 		              // sum the masses
 		              double mass_sum = 0.0;
 		              std::complex<double> weighted_pos_sum{0, 0};
-		              if (node->is_leaf())
+		              if (node->is_leaf_)
 		              {
 			              if (node->content != nullptr)
 			              {
@@ -176,7 +126,7 @@ void adaptive::quadtree::compute_center_of_mass()
 		              }
 		              else
 		              {
-			              for (const tree_node* child : node->children.value())
+			              for (const tree_node* child : node->children)
 			              {
 				              mass_sum += child->node_mass;
 				              weighted_pos_sum += child->weighted_pos;
@@ -188,128 +138,53 @@ void adaptive::quadtree::compute_center_of_mass()
 	              });
 }
 
-std::complex<double> adaptive::quadtree::compute_force_at_recursive(const vec2& pos)
-{
-	return root_.get_gravity_at(pos);
-}
-
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_bfs(const vec2& pos)
+std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(
+	std::array<tree_node*, 1024>& stack, const vec2& pos, const double theta)
 {
 	std::complex<double> force;
 
-	std::queue<tree_node*> queue;
-	queue.push(&root_);
+	size_t stack_cp = 0; // aka (stack current pointer)
 
-	while (!queue.empty())
-	{
-		std::cout<< queue.size() <<std::endl;
-
-		const auto current = queue.front();
-		queue.pop();
-
-		if (current->is_leaf())
-		{
-			force += direct_compute(current->content, pos);
-		}
-		else if (check_theta(current, pos))
-		{
-			force += estimate_compute(current, pos);
-		}
-		else
-		{
-			// Otherwise, we will recursively visit the child cells in the quadtree.
-			for (const auto child : current->children.value())
-			{
-				if (child->is_leaf() && child->is_empty()) // skip empty nodes
-				{
-					continue;
-				}
-
-				queue.push(child);
-			}
-		}
-	}
-
-	return force;
-}
-
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs(const vec2& pos)
-{
-	std::complex<double> force;
-
-	std::stack<tree_node*> stack;
-	stack.push(&root_);
-
-	while (!stack.empty())
-	{
-		std::cout << stack.size() << std::endl;
-
-		const auto current = stack.top();
-		stack.pop();
-
-		if (current->is_leaf())
-		{
-			force += direct_compute(current->content, pos);
-		}
-		else if (check_theta(current, pos))
-		{
-			force += estimate_compute(current, pos);
-		}
-		else
-		{
-			// Otherwise, we will recursively visit the child cells in the quadtree.
-			for (const auto child : current->children.value())
-			{
-				if (child->is_leaf() && child->is_empty()) // skip empty nodes
-				{
-					continue;
-				}
-
-				stack.push(child);
-			}
-		}
-
-	}
-
-	return force;
-}
-
-std::complex<double> adaptive::quadtree::compute_force_at_iterative_dfs_array(const vec2& pos)
-{
-	std::complex<double> force;
-
-	size_t stack_cp = 0;
-	std::array<tree_node*, 1024> stack{};
-
+	// Push the root node to the stack
 	stack[++stack_cp] = &root_;
 
-	while (stack_cp !=0)
+	while (stack_cp != 0)
 	{
-		const auto current = stack[stack_cp];
+		// Pop from the stack as 'current'
+		const tree_node* current = stack[stack_cp];
 		stack[stack_cp--] = nullptr;
 
-		if (current->is_leaf())
+		if (current->is_leaf_)
 		{
+			if (current->is_empty())
+			{
+				continue;
+			}
+
+			// On leaf nodes we reach the base case and we want to do the direct
+			// particle-to-particle computation.
+
 			force += direct_compute(current->content, pos);
 		}
-		else if (check_theta(current, pos))
+		else if (check_theta(current, pos, theta))
 		{
+			// On non-leaf nodes if the current node is under a distance
+			// threshold (theta) then we approximate this node with a
+			// particle-to-node computation.
+
 			force += estimate_compute(current, pos);
 		}
 		else
 		{
-			// Otherwise, we will recursively visit the child cells in the quadtree.
-			for (const auto child : current->children.value())
-			{
-				if (child->is_leaf() && child->is_empty()) // skip empty nodes
-				{
-					continue;
-				}
+			// On non-leaf nodes and if the current node's distance is greater
+			// than the threshold we want to recursively visit its children. 
 
+			for (tree_node* child : current->children)
+			{
+				// Push the child to the stack
 				stack[++stack_cp] = child;
 			}
 		}
-
 	}
 
 	return force;
@@ -328,14 +203,13 @@ std::complex<double> adaptive::quadtree::direct_compute(const body_ptr& body, co
 	return force;
 }
 
-bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos) const
+bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, const double theta)
 {
 	const auto com = node->center_of_mass();
 	const auto distance = com - pos;
 	const auto norm = abs(distance);
 	const auto geo_size = node->bounding_box.size.real();
 
-	static double theta = 1.0;
 	return geo_size / norm < theta;
 }
 
@@ -345,3 +219,7 @@ std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node,
 	const auto f = kernel_func(com, pos);
 	return node->node_mass * f;
 }
+
+size_t adaptive::quadtree::depth = 0;
+
+size_t adaptive::quadtree::num_nodes = 1;

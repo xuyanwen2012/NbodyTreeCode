@@ -3,9 +3,9 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
 # Add source to this project's executable.
-add_executable (NbodyTreeCode "Main.cpp" "Rect.h" "AdaptiveQuadtree.h" "AdaptiveQuadtree.cpp")
+add_executable (NbodyTreeCode "Main.cpp" "Rect.h" "AdaptiveQuadtree.h" "AdaptiveQuadtree.cpp"  )
 
 # TODO: Add tests and install targets if needed.

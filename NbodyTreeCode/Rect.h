@@ -2,8 +2,7 @@
 
 #include <complex>
 
-template <typename T,
-          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
+template <typename T>
 struct rect
 {
 	rect() = default;

@@ -9,6 +9,9 @@
 #ifdef __linux__
 #include <algorithm>
 #include <cstdlib>
+#include <omp.h>
+
+int DEC_NUM_CONSUMERS = 1;
 #endif
 
 using namespace adaptive;
@@ -17,7 +20,7 @@ using namespace adaptive;
 double my_rand()
 {
 	static thread_local std::mt19937 generator; // NOLINT(cert-msc51-cpp)
-	const std::uniform_real_distribution distribution(0.0, 1.0);
+	const std::uniform_real_distribution<double> distribution(0.0, 1.0);
 	return distribution(generator);
 }
 #endif
@@ -39,33 +42,40 @@ double my_rand(const double f_min = 0.0, const double f_max = 1.0)
 /// <param name="bodies"></param>
 void estimate_forces(std::vector<vec2>& forces_n_log_n,
                      quadtree& qt,
-                     const std::vector<std::shared_ptr<body<double>>>& bodies)
+                     const std::vector<body_ptr>& bodies)
 {
+	std::array<tree_node*, 1024> stack{};
+
 	const auto num_bodies = bodies.size();
 	for (size_t i = 0; i < num_bodies; ++i)
 	{
-		std::complex<double> force;
+		const auto force = qt.compute_force_at_iterative_dfs_array(stack, bodies[i]->pos, 1.0);
+		forces_n_log_n[i] = - force;
+	}
+}
 
-		static constexpr int method = 3;
-
-		if constexpr (method == 0)
-		{
-			force = qt.compute_force_at_recursive(bodies[i]->pos);
-		}
-		if constexpr (method == 1)
-		{
-			force = qt.compute_force_at_iterative_bfs(bodies[i]->pos);
-		}
-		if constexpr (method == 2)
-		{
-			force = qt.compute_force_at_iterative_dfs(bodies[i]->pos);
-		}
-		if constexpr (method == 3)
-		{
-			force = qt.compute_force_at_iterative_dfs_array(bodies[i]->pos);
-		}
-
-		forces_n_log_n.push_back(force);
+/// <summary>
+/// We use this for the Princeton tool. Basically only doing one for computation.
+/// </summary>
+/// <param name="qt"></param>
+/// <param name="bodies"></param>
+/// <param name="stack"></param>
+/// <param name="num_to_sim"></param>
+/// <param name="theta"></param>
+/// <param name="t0"> Must be there to make the simulator happy. </param>
+/// <param name="t1"> Must be there to make the simulator happy. </param>
+// ReSharper disable once CppInconsistentNaming
+void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
+              const std::vector<body_ptr>& bodies,
+              std::array<tree_node*, 1024>& stack,
+              const size_t num_to_sim,
+              const double theta,
+              int t0,
+              int t1)
+{
+	for (size_t i = 0; i < num_to_sim; ++i)
+	{
+		qt.compute_force_at_iterative_dfs_array(stack, bodies[i]->pos, theta);
 	}
 }
 
@@ -75,28 +85,30 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// <param name="argc"></param>
 /// <param name="argv"></param>
 /// <returns></returns>
-int main(const int argc, char* argv[]) 
+int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = false;
 
-	size_t num_bodies = 1024 * 1024;
+	constexpr size_t num_bodies = 1024 * 1024;
+	size_t num_to_sim = 1;
+	double theta = 1.0;
+
 	if (argc == 2)
 	{
-		num_bodies = atoi(argv[1]);
+		num_to_sim = std::stoi(argv[1]);
+	}
+
+	if (argc == 3)
+	{
+		theta = std::stod(argv[2]);
 	}
 
 	// The main particle table
 	std::vector<body_ptr> bodies;
 
 	// The force tables used to store results.
-	std::vector<vec2> forces_n_squared;
-	if (show_rmse)
-	{
-		forces_n_squared.reserve(num_bodies);
-	}
-
-	std::vector<vec2> forces_n_log_n;
-	forces_n_log_n.reserve(num_bodies);
+	std::vector<vec2> forces_n_squared(num_bodies);
+	std::vector<vec2> forces_n_log_n(num_bodies);
 
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -145,7 +157,11 @@ int main(const int argc, char* argv[])
 	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	estimate_forces(forces_n_log_n, qt, bodies);
+	std::array<tree_node*, 1024> stack{};
+	_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
+
+	//estimate_forces(forces_n_log_n, qt, bodies);
+
 
 	// -------- Do Analysis --------
 
@@ -157,11 +173,13 @@ int main(const int argc, char* argv[])
 			tmp += pow(forces_n_squared[i] - forces_n_log_n[i], 2);
 		}
 
-		const auto n = static_cast<double>(num_bodies);
+		constexpr auto n = static_cast<double>(num_bodies);
 		const auto rsme = sqrt(tmp / n);
 		std::cout << "RSME = " << rsme << std::endl;
 	}
 
+	std::cout << "num_to_sim: " << num_to_sim << std::endl;
+	std::cout << "theta: " << theta << std::endl;
 	std::cout << "tree depth: " << quadtree::depth << std::endl;
 	std::cout << "tree num nodes: " << quadtree::num_nodes << std::endl;
 

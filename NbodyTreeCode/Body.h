@@ -2,8 +2,7 @@
 
 #include <complex>
 
-template <typename T,
-          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
+template <typename T>
 struct body
 {
 	body(const int uid, const std::complex<T> pos, const double mass)
@@ -16,9 +15,17 @@ struct body
 	double mass;
 };
 
-template <typename T,
-          typename = std::enable_if_t<std::is_floating_point_v<T>, T>>
-std::complex<T> kernel_func(
-	const std::complex<T>& i,
-	const std::complex<T>& j
-) { return log(abs(i - j)); }
+/// <summary>
+/// The main kernel function used to compute the pairwise force between
+///	particles. 
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="i">The first particle.</param>
+/// <param name="j">The second particle.</param>
+/// <returns>The force.</returns>
+template <typename T>
+std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
+{
+	const std::complex<T> dist = i - j;
+	return dist / pow(abs(dist), 3);
+}
