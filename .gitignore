@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+NbodyTreeCode/decades_base/
+NbodyTreeCode/epochStats
+NbodyTreeCode/memStats
+NbodyTreeCode/mlpStats
+NbodyTreeCode/tmp_new.txt
+
 # User-specific files
 *.rsuser
 *.suo
