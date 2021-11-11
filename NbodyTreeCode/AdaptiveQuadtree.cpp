@@ -196,8 +196,9 @@ std::complex<double> adaptive::quadtree::direct_compute(const body_ptr& body, co
 
 	if (body->pos != pos)
 	{
-		const auto f = kernel_func(body->pos, pos);
-		force += f * body->mass;
+		//const auto f = kernel_func(body->pos, pos);
+		//force += f * body->mass;
+		force += 1.0;
 	}
 
 	return force;
@@ -228,8 +229,9 @@ bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, con
 std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node, const vec2& pos)
 {
 	const auto com = node->center_of_mass();
-	const auto f = kernel_func(com, pos);
-	return node->node_mass * f;
+	//const auto f = kernel_func(com, pos);
+	//return node->node_mass * f;
+	return 1.0;
 }
 
 size_t adaptive::quadtree::depth = 0;
