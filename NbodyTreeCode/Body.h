@@ -15,12 +15,16 @@ struct body
 	double mass;
 };
 
-inline double sqrt13(const double n)
+inline double sqrt9(const double fg)
 {
-	__asm {
-		fld n
-		fsqrt
-		}
+	double n = fg / 2.0;
+	double lst_x = 0.0;
+	while (n != lst_x)
+	{
+		lst_x = n;
+		n = (n + fg / n) / 2.0;
+	}
+	return n;
 }
 
 
@@ -42,7 +46,7 @@ std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
 
 	T dist_sqr = dx * dx + dy * dy + softening; //return dist / pow(abs(dist), 3);
 
-	T inv_dist = 1.0 / sqrt13(dist_sqr);
+	T inv_dist = 1.0 / sqrt9(dist_sqr);
 
 	T inv_dist3 = inv_dist * inv_dist * inv_dist;
 
