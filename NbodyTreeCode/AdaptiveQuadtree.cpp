@@ -207,7 +207,11 @@ bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, con
 {
 	const auto com = node->center_of_mass();
 	const auto distance = com - pos;
+
+
+
 	const auto norm = abs(distance);
+
 	const auto geo_size = node->bounding_box.size.real();
 
 	return geo_size / norm < theta;

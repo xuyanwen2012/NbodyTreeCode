@@ -65,13 +65,13 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 /// <param name="t0"> Must be there to make the simulator happy. </param>
 /// <param name="t1"> Must be there to make the simulator happy. </param>
 // ReSharper disable once CppInconsistentNaming
-void _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier)
+auto _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier, clang-diagnostic-reserved-identifier)
               const std::vector<body_ptr>& bodies,
               std::array<tree_node*, 1024>& stack,
               const size_t num_to_sim,
               const double theta,
               int t0,
-              int t1)
+              int t1) -> void
 {
 	for (size_t i = 0; i < num_to_sim; ++i)
 	{
