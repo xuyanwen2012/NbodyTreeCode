@@ -98,8 +98,8 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 	srand(666);
 #endif
 
-	constexpr size_t num_bodies = static_cast<size_t>(1024) * 10;
-	size_t num_to_sim = static_cast<size_t>(1024) * 10;
+	constexpr size_t num_bodies = 512;
+	size_t num_to_sim = 512;
 
 	if (argc == 2)
 	{
