@@ -54,28 +54,33 @@ void estimate_forces(std::vector<vec2>& forces_n_log_n,
 	}
 }
 
-/// <summary>
-/// We use this for the Princeton tool. Basically only doing one for computation.
-/// </summary>
-/// <param name="qt"></param>
-/// <param name="bodies"></param>
-/// <param name="stack"></param>
-/// <param name="num_to_sim"></param>
-/// <param name="theta"></param>
-/// <param name="t0"> Must be there to make the simulator happy. </param>
-/// <param name="t1"> Must be there to make the simulator happy. </param>
+
 // ReSharper disable once CppInconsistentNaming
-auto _kernel_(quadtree& qt, // NOLINT(bugprone-reserved-identifier, clang-diagnostic-reserved-identifier)
+void _kernel_(std::vector<vec2>& forces_n_squared, // NOLINT(bugprone-reserved-identifier, clang-diagnostic-reserved-identifier)
               const std::vector<body_ptr>& bodies,
-              std::array<tree_node*, 1024>& stack,
+              const size_t num_bodies,
               const size_t num_to_sim,
-              const double theta,
               int t0,
-              int t1) -> void
+              int t1)
 {
 	for (size_t i = 0; i < num_to_sim; ++i)
 	{
-		qt.compute_force_at_iterative_dfs_array(stack, bodies[i]->pos, theta);
+		for (size_t j = 0; j < num_bodies; ++j)
+		{
+			if (i == j)
+			{
+				continue;
+			}
+
+			const auto force = kernel_func(
+				bodies[i]->pos,
+				bodies[j]->pos
+			);
+
+			const auto fm = bodies[j]->mass * force;
+
+			forces_n_squared[i] += fm;
+		}
 	}
 }
 
@@ -89,18 +94,16 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
 	static constexpr bool show_rmse = false;
 
-	constexpr size_t num_bodies = 1024 * 60;
-	size_t num_to_sim = 1024 * 60;
-	double theta = 1.0;
+#ifdef __linux__
+	srand(666);
+#endif
+
+	constexpr size_t num_bodies = static_cast<size_t>(1024) * 10;
+	size_t num_to_sim = static_cast<size_t>(1024) * 10;
 
 	if (argc == 2)
 	{
 		num_to_sim = std::stoi(argv[1]);
-	}
-
-	if (argc == 3)
-	{
-		theta = std::stod(argv[2]);
 	}
 
 	// The main particle table
@@ -108,7 +111,6 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 
 	// The force tables used to store results.
 	std::vector<vec2> forces_n_squared(num_bodies);
-	std::vector<vec2> forces_n_log_n(num_bodies);
 
 	// Initialization of positions/masses
 	for (size_t i = 0; i < num_bodies; ++i)
@@ -125,63 +127,13 @@ int main(const int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 		for (size_t i = 0; i < num_bodies; ++i)
 		{
 			forces_n_squared[i] = {0, 0};
-			for (size_t j = 0; j < num_bodies; ++j)
-			{
-				if (i == j)
-				{
-					continue;
-				}
-
-				const auto force = kernel_func(
-					bodies[i]->pos,
-					bodies[j]->pos
-				);
-
-				const auto fm = bodies[j]->mass * force;
-
-				forces_n_squared[i] += fm;
-			}
 		}
 	}
-
-	// -------- Do the NlogN --------
-	auto qt = quadtree();
-
-	// 1) Construct the Quadtree
-	for (const auto& body : bodies)
-	{
-		qt.allocate_node_for_particle(body);
-	}
-
-	// 2) Calculate Centers of Mass
-	qt.compute_center_of_mass();
 
 	// 3) Estimate N-Body Forces
-	std::array<tree_node*, 1024> stack{};
-	_kernel_(qt, bodies, stack, num_to_sim, theta, 0, 0);
-
-	//estimate_forces(forces_n_log_n, qt, bodies);
-
-
-	// -------- Do Analysis --------
-
-	if (show_rmse)
-	{
-		vec2 tmp;
-		for (size_t i = 0; i < num_bodies; ++i)
-		{
-			tmp += pow(forces_n_squared[i] - forces_n_log_n[i], 2);
-		}
-
-		constexpr auto n = static_cast<double>(num_bodies);
-		const auto rsme = sqrt(tmp / n);
-		std::cout << "RSME = " << rsme << std::endl;
-	}
+	_kernel_(forces_n_squared, bodies, num_bodies, num_to_sim, 0, 0);
 
 	std::cout << "num_to_sim: " << num_to_sim << std::endl;
-	std::cout << "theta: " << theta << std::endl;
-	std::cout << "tree depth: " << quadtree::depth << std::endl;
-	std::cout << "tree num nodes: " << quadtree::num_nodes << std::endl;
 
 	return EXIT_SUCCESS;
 }
