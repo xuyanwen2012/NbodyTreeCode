@@ -210,7 +210,15 @@ bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, con
 
 
 
-	const auto norm = abs(distance);
+	//const auto norm = abs(distance);
+
+	static constexpr double softening = 1e-9;
+	double dx = com.real() - pos.imag();
+	double dy = com.imag() - pos.imag();
+	double dist_sqr = dx * dx + dy * dy + softening;
+	double norm = my_root(dist_sqr);
+
+
 
 	const auto geo_size = node->bounding_box.size.real();
 
