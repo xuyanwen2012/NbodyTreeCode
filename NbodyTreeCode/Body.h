@@ -15,6 +15,14 @@ struct body
 	double mass;
 };
 
+inline double sqrt13(const double n)
+{
+	__asm {
+		fld n
+		fsqrt
+		}
+}
+
 
 /// <summary>
 /// The main kernel function used to compute the pairwise force between
@@ -33,7 +41,9 @@ std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
 	T dy = i.imag() - j.imag();
 
 	T dist_sqr = dx * dx + dy * dy + softening; //return dist / pow(abs(dist), 3);
-	T inv_dist = 1.0 / sqrt(dist_sqr);
+
+	T inv_dist = 1.0 / sqrt13(dist_sqr);
+
 	T inv_dist3 = inv_dist * inv_dist * inv_dist;
 
 	return {dx * inv_dist3, dy * inv_dist3};
