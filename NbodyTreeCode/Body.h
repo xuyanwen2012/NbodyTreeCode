@@ -15,18 +15,35 @@ struct body
 	double mass;
 };
 
-inline double sqrt9(const double fg)
+inline double sqrt9(const double x)
 {
-	double n = fg / 2.0;
-	double lst_x = 0.0;
-	while (n != lst_x)
+	union
 	{
-		lst_x = n;
-		n = (n + fg / n) / 2.0;
-	}
-	return n;
+		int i;
+		float x;
+	} u;
+	u.x = x;
+	u.i = (1 << 29) + (u.i >> 1) - (1 << 22);
+
+	// Two Babylonian Steps (simplified from:)
+	// u.x = 0.5f * (u.x + x/u.x);
+	// u.x = 0.5f * (u.x + x/u.x);
+	u.x = u.x + x / u.x;
+	u.x = 0.25f * u.x + x / u.x;
+
+	return u.x;
 }
 
+inline double rsqrt64(const double number)
+{
+	const double x2 = number * 0.5;
+	double y = number;
+	uint64_t i = *reinterpret_cast<uint64_t*>(&y);
+	i = 0x5fe6eb50c7b537a9 - (i >> 1);
+	y = *reinterpret_cast<double*>(&i);
+	y = y * (1.5 - (x2 * y * y));
+	return y;
+}
 
 /// <summary>
 /// The main kernel function used to compute the pairwise force between
@@ -46,7 +63,7 @@ std::complex<T> kernel_func(const std::complex<T>& i, const std::complex<T>& j)
 
 	T dist_sqr = dx * dx + dy * dy + softening; //return dist / pow(abs(dist), 3);
 
-	T inv_dist = 1.0 / sqrt9(dist_sqr);
+	T inv_dist = rsqrt64(dist_sqr); //T inv_dist = 1.0 / sqrt9(dist_sqr);
 
 	T inv_dist3 = inv_dist * inv_dist * inv_dist;
 

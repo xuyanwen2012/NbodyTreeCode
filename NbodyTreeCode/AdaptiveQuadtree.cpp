@@ -214,11 +214,11 @@ bool adaptive::quadtree::check_theta(const tree_node* node, const vec2& pos, con
 	const double dx = com.real() - pos.imag();
 	const double dy = com.imag() - pos.imag();
 	const double dist_sqr = dx * dx + dy * dy + softening;
-	const double norm = sqrt9(dist_sqr);
+	const double inv_norm = rsqrt64(dist_sqr);
 
 	const auto geo_size = node->bounding_box.size.real();
 
-	return geo_size / norm < theta;
+	return geo_size * inv_norm < theta;
 }
 
 std::complex<double> adaptive::quadtree::estimate_compute(const tree_node* node, const vec2& pos)
